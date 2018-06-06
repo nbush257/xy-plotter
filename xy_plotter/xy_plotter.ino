@@ -23,7 +23,7 @@ const int x_limit_pin = 3;
 
 // This is a digital out that will be used to
 // let us know that the motors are in motion
-const int movement_output = 1; 
+const int movement_output = 13; 
 
 
 bool x_coarse = false;
@@ -36,9 +36,11 @@ void setup() {
   pinMode(y_limit_pin, INPUT);
   pinMode(x_limit_pin, INPUT);
   pinMode(movement_output, OUTPUT);
+  digitalWrite(movement_output,LOW);
+
   Serial.begin(9600);
   // Let python know we are online
-  Serial.write(1):
+  Serial.write(1);
   while (!Serial.available()) {} //wait for input
   //Let python know we are homing
   Serial.write(0);
@@ -68,7 +70,7 @@ void setup() {
 x->step(20,FORWARD, DOUBLE);
 y->step(20,BACKWARD, DOUBLE);
 // Home
-  digitalWrite(movement_output,HIGH)
+  digitalWrite(movement_output,HIGH);
   while (!x_homed) {
     x->step(1, BACKWARD, MICROSTEP);
     if (digitalRead(x_limit_pin) == HIGH) {
@@ -82,7 +84,7 @@ y->step(20,BACKWARD, DOUBLE);
       y_homed = true;
     }
   }
-  digitalWrite(movement_output,LOW)
+  digitalWrite(movement_output,LOW);
   Serial.write(1);
   Serial.flush();
   x->release();
@@ -167,7 +169,7 @@ void loop() {
   // Move X
   // ================================ //
 
-  digitalWrite(movement_output,HIGH)
+  digitalWrite(movement_output,HIGH);
   if (x_delta >= 0) {
     x->step(x_delta, FORWARD, step_mode);
   }
@@ -186,7 +188,7 @@ void loop() {
     y_delta = -y_delta;
     y->step(y_delta, FORWARD, step_mode);
   }
-  digitalWrite(movement_output,LOW)
+  digitalWrite(movement_output,LOW);
   // ================================ //
   // Set new position
   // ================================ //

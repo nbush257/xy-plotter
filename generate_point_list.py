@@ -5,11 +5,11 @@ import sys
 # the initial position
 
 # Hardcoding the extent of movement (in steps) that we want
-extent_x = 50
-extent_y = 50
-spacing = 10 # must be an int
-
-delay = 5
+extent_x = 20
+extent_y = 20
+spacing = 2 # must be an int
+mode = 'D'
+delay = 2
 
 # Position furthest from the nose:
 start_x = int(sys.argv[1])
@@ -18,15 +18,15 @@ start_y = int(sys.argv[2])
 fname = sys.argv[3]
 
 
-x = np.arange(start_x, start_x + extent_x,spacing)
-y = np.arange(start_y, start_y + extent_y,spacing)
+x = np.arange(start_x - extent_x, start_x, spacing)
+y = np.arange(start_y - extent_y, start_y, spacing)
 X,Y = np.meshgrid(x,y)
 
 
 df = pd.DataFrame()
 df['X'] = X.ravel()
 df['Y'] = Y.ravel()
-df['mode'] = 'M'
+df['mode'] = mode
 df['delay'] = delay
 df = df.loc[1:]
 

@@ -81,5 +81,8 @@ def main(filename,port='COM3'):
 
 if __name__ == '__main__':
     point_list = sys.argv[1]
-    com_port = sys.argv[2]
+    if len(sys.argv)>2:
+    	com_port = sys.argv[2]
+    else:
+    	com_port = 'COM3'
     main(point_list,com_port)
