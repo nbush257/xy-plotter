@@ -8,7 +8,7 @@ Adafruit_StepperMotor *y = s.getStepper(400, 1);
 
 //int x_target = 0;
 //int y_target = 0;
-int x_pos = 0;
+int x_pos = 30; // Set this to 90 so as to avoid the bars
 int y_pos = 0;
 char mode = 'D';
 int sleep_time = 0;
@@ -23,7 +23,7 @@ const int x_limit_pin = 3;
 
 // This is a digital out that will be used to
 // let us know that the motors are in motion
-const int movement_output = 13; 
+const int movement_output = 13;
 
 
 bool x_coarse = false;
@@ -36,7 +36,7 @@ void setup() {
   pinMode(y_limit_pin, INPUT);
   pinMode(x_limit_pin, INPUT);
   pinMode(movement_output, OUTPUT);
-  digitalWrite(movement_output,LOW);
+  digitalWrite(movement_output, LOW);
 
   Serial.begin(9600);
   // Let python know we are online
@@ -47,36 +47,38 @@ void setup() {
   s.begin();
   x->setSpeed(100);
   y->setSpeed(100);
-  // ==============
-  // Coarse homing
-  // ==============
+
+  // ==========
+  // X homing
+  // ==========
+  digitalWrite(movement_output, HIGH);
+
   while (!x_coarse) {
     x->step(1, BACKWARD, DOUBLE);
     if (digitalRead(x_limit_pin) == HIGH) {
       x_coarse = true;
     }
   }
-
-  while (!y_coarse) {
-    y->step(1, FORWARD, DOUBLE);
-    if (digitalRead(y_limit_pin) == HIGH) {
-      y_coarse = true;
-    }
-  }
-// ==============
-// Fine Homing
-// ==============
-// Give space
-x->step(20,FORWARD, DOUBLE);
-y->step(20,BACKWARD, DOUBLE);
-// Home
-  digitalWrite(movement_output,HIGH);
+  x->step(20, FORWARD, DOUBLE);
   while (!x_homed) {
     x->step(1, BACKWARD, MICROSTEP);
     if (digitalRead(x_limit_pin) == HIGH) {
       x_homed = true;
     }
   }
+  x->step(x_pos*5.5556, FORWARD, DOUBLE);
+
+  // ============
+  // Y homing
+  // ============
+  while (!y_coarse) {
+    y->step(1, FORWARD, DOUBLE);
+    if (digitalRead(y_limit_pin) == HIGH) {
+      y_coarse = true;
+    }
+  }
+
+  y->step(20, BACKWARD, DOUBLE);
 
   while (!y_homed) {
     y->step(1, FORWARD, MICROSTEP);
@@ -84,7 +86,7 @@ y->step(20,BACKWARD, DOUBLE);
       y_homed = true;
     }
   }
-  digitalWrite(movement_output,LOW);
+  digitalWrite(movement_output, LOW);
   Serial.write(1);
   Serial.flush();
   x->release();
@@ -123,7 +125,7 @@ void loop() {
   if (y_target < 0) {
     y_target = 0;
   }
-  
+
   // Let python know the message was received
   Serial.write(1);
   // ================================ //
@@ -133,7 +135,7 @@ void loop() {
   char mode = Serial.read();
   // Let python know the message was received
   Serial.write(1);
-  
+
   // ================================ //
   // Calculate Delta
   // ================================ //
@@ -165,19 +167,8 @@ void loop() {
     step_mode = MICROSTEP;
   }
 
-  // ================================ //
-  // Move X
-  // ================================ //
 
-  digitalWrite(movement_output,HIGH);
-  if (x_delta >= 0) {
-    x->step(x_delta, FORWARD, step_mode);
-  }
-  else {
-    x_delta = -x_delta;
-    x->step(x_delta, BACKWARD, step_mode);
-  }
-
+  digitalWrite(movement_output, HIGH);
   // ================================ //
   // Move Y
   // ================================ //
@@ -188,7 +179,19 @@ void loop() {
     y_delta = -y_delta;
     y->step(y_delta, FORWARD, step_mode);
   }
-  digitalWrite(movement_output,LOW);
+
+  // ================================ //
+  // Move X
+  // ================================ //
+
+  if (x_delta >= 0) {
+    x->step(x_delta, FORWARD, step_mode);
+  }
+  else {
+    x_delta = -x_delta;
+    x->step(x_delta, BACKWARD, step_mode);
+  }
+  digitalWrite(movement_output, LOW);
   // ================================ //
   // Set new position
   // ================================ //
