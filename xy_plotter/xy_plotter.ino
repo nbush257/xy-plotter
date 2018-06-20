@@ -24,12 +24,16 @@ const int x_limit_pin = 3;
 // This is a digital out that will be used to
 // let us know that the motors are in motion
 const int movement_output = 13;
-
+const int record_tgl = 12;
+const int enable_pin = 11;
+int record_signal_in = 0;
 
 bool x_coarse = false;
 bool y_coarse = false;
 bool x_homed = false;
 bool y_homed = false;
+
+bool break_tgl = false;
 
 void setup() {
   // put your setup code here, to run once:
@@ -37,6 +41,12 @@ void setup() {
   pinMode(x_limit_pin, INPUT);
   pinMode(movement_output, OUTPUT);
   digitalWrite(movement_output, LOW);
+  pinMode(record_tgl, OUTPUT);
+  digitalWrite(record_tgl, LOW);
+  pinMode(enable_pin, OUTPUT);
+  digitalWrite(enable_pin, HIGH);
+
+
 
   Serial.begin(9600);
   // Let python know we are online
@@ -66,7 +76,7 @@ void setup() {
       x_homed = true;
     }
   }
-  x->step(x_pos*5.5556, FORWARD, DOUBLE);
+  x->step(x_pos * 5.5556, FORWARD, DOUBLE);
 
   // ============
   // Y homing
@@ -97,6 +107,41 @@ void setup() {
 }
 
 void loop() {
+  // =====================
+  // Check for record signal
+  // =====================
+  while (!Serial.available()) {} // wait for input
+  record_signal_in = Serial.read();
+  if (record_signal_in == 2) { // If the recording is starting, send a toggle pulse
+    digitalWrite(enable_pin, LOW);
+    delay(100);
+    digitalWrite(record_tgl, HIGH);
+    delay(1);
+    digitalWrite(enable_pin, HIGH);
+    delay(1);
+    digitalWrite(record_tgl, LOW);
+    delay(100);
+
+
+  }
+  else if (record_signal_in == 3) { //If the recording is over, send a record toggle pulse, release the motors, and dont continue on
+    digitalWrite(enable_pin, LOW);
+    delay(100);
+    digitalWrite(record_tgl, HIGH);
+    delay(1);
+    digitalWrite(enable_pin, HIGH);
+    delay(1);
+    digitalWrite(record_tgl, LOW);
+    
+    delay(100);
+    x->release();
+    y->release();
+    while (true) {
+      delay(1000);
+    }
+  }
+  Serial.write(1);
+
   // ================================ //
   // Get X target
   // ================================ //

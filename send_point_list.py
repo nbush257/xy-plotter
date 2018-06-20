@@ -36,10 +36,21 @@ def main(filename,port='COM3'):
             if count == 1:
                 print('Press any key to start sequence')
                 m.getch()
+                print('Starting recording and peg sequence')
+                # Send the start record signal from the arduino
+                ser.write(b'\x02')
+            else:
+                # do not send the start record signal
+                ser.write(b'\x00')
+
+            # Wait for receipt signal
+            while ser.read() != b'\x01':
+                time.sleep(0.1)
 
             # =============================== #
             # ========= Send coords ========= # 
             # =============================== #
+
 
             # Send X coordinate and wait until arduino says it has been received
             ser.write(str(row['X']).encode('utf-8'))
@@ -75,6 +86,10 @@ def main(filename,port='COM3'):
                 time.sleep(float(row['delay']))
             count+=1
 
+        # Tell the arduino to send the record toggle to stop the recording
+        ser.write(b'\x03')
+
+        # close the arduino
         ser.close()
         print('Arduino Closed!')
         return(0)
