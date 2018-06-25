@@ -5,8 +5,8 @@ import sys
 # the initial position
 
 # Hardcoding the extent of movement (in steps) that we want
-extent_x = 20
-extent_y = 20
+extent_x = 10
+extent_y = 10
 spacing = 2 # must be an int
 mode = 'D'
 delay = 2

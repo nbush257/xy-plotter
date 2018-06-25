@@ -4,9 +4,24 @@ import csv
 import time
 import msvcrt as m
 import sys
+import signal
+import sys
+
+# catch control c and exit gracefully
+#def signal_handler(signal, frame):
+    #if True:
+        #break
+#
+    #print('You pressed Ctrl+C!')
+    #time.sleep(4)
+    #ser.write(b'\x03')
+    ## close the arduino
+    #ser.close()
+    #print('Arduino Closed!')
+    #sys.exit(0)
+
 
 # in place of 'COM9', put whatever COM port the Arduino is connected to on this computer
-
 def main(filename,port='COM3'):
     # initialize serial connection
     ser = serial.Serial(port,timeout=0.1)
@@ -100,4 +115,6 @@ if __name__ == '__main__':
     	com_port = sys.argv[2]
     else:
     	com_port = 'COM3'
+
+    #signal.signal(signal.SIGINT, signal_handler)
     main(point_list,com_port)
