@@ -8,30 +8,29 @@ import signal
 import sys
 
 # catch control c and exit gracefully
-def signal_handler(signal, frame):
-    if True:
-        break
-#
-    print('You pressed Ctrl+C!')
-    while True:
-        incoming = ser.read()
-     ''' while the arduino is still listening for peg
-        position commands, give it placeholders'''
-        if incoming != b'x02':
-            ser.write()#TODO change this to be a blank thing
-        else: #when it has finished the listen, send the stop record signal.
-            ser.write(b'\x03')
-            # close the arduino
-            ser.close()
-            print('Arduino Closed!')
-            sys.exit(0)
 
 
 # in place of 'COM9', put whatever COM port the Arduino is connected to on this computer
 def main(filename,port='COM3'):
+    def signal_handler(signal, frame):
+    #
+        print('You pressed Ctrl+C!')
+        #ser.write('Q'.encode('utf-8'))# Write Quit 
+        incoming = ser.read()
+        while True:
+            #ser.write('Q'.encode('utf-8'))# Write Quit 
+            ser.write(b'\x03')# Write Quit 
+            incoming = ser.read()
+
+            if incoming == b'\x03':
+                ser.close()
+                print('Arduino Closed!')
+                sys.exit(0)
     # initialize serial connection
     ser = serial.Serial(port,timeout=0.1)
 
+    # start the ctrl-c detector
+    signal.signal(signal.SIGINT, signal_handler)
     # Wait for arduino to come online
     while ser.read() != b'\x01':
         time.sleep(0.1)
@@ -122,5 +121,4 @@ if __name__ == '__main__':
     else:
     	com_port = 'COM3'
 
-    #signal.signal(signal.SIGINT, signal_handler)
     main(point_list,com_port)

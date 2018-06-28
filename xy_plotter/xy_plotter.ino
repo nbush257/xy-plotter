@@ -132,10 +132,11 @@ void loop() {
     digitalWrite(enable_pin, HIGH);
     delay(1);
     digitalWrite(record_tgl, LOW);
-    
+
     delay(100);
     x->release();
     y->release();
+    Serial.write(3);
     while (true) {
       delay(1000);
     }
@@ -147,6 +148,10 @@ void loop() {
   // ================================ //
   while (!Serial.available()) {} //wait for input
   int x_target = Serial.parseInt();
+  Serial.println(x_target);
+  // catch interrupt
+
+
   // Prevent stupid inputs
   if (x_target > 390) {
     x_target = 390;
@@ -174,12 +179,33 @@ void loop() {
   // Let python know the message was received
   Serial.write(1);
   // ================================ //
-  // Get mode ('S','D','M','I')
+  // Get mode ('S','D','M','I','Q') Q is for quit
   // ================================ //
   while (!Serial.available()) {} //wait for input
   char mode = Serial.read();
   // Let python know the message was received
   Serial.write(1);
+  
+  // Quit signal
+  if (mode == 'Q') {
+    digitalWrite(enable_pin, LOW);
+    delay(100);
+    digitalWrite(record_tgl, HIGH);
+    delay(1);
+    digitalWrite(enable_pin, HIGH);
+    delay(1);
+    digitalWrite(record_tgl, LOW);
+
+    delay(100);
+    x->release();
+    y->release();
+    Serial.write(3);
+    // Keep us here until the user closes.
+    while (true) {
+      delay(1000);
+    }
+  }
+
 
   // ================================ //
   // Calculate Delta
