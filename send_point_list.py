@@ -8,17 +8,23 @@ import signal
 import sys
 
 # catch control c and exit gracefully
-#def signal_handler(signal, frame):
-    #if True:
-        #break
+def signal_handler(signal, frame):
+    if True:
+        break
 #
-    #print('You pressed Ctrl+C!')
-    #time.sleep(4)
-    #ser.write(b'\x03')
-    ## close the arduino
-    #ser.close()
-    #print('Arduino Closed!')
-    #sys.exit(0)
+    print('You pressed Ctrl+C!')
+    while True:
+        incoming = ser.read()
+     ''' while the arduino is still listening for peg
+        position commands, give it placeholders'''
+        if incoming != b'x02':
+            ser.write()#TODO change this to be a blank thing
+        else: #when it has finished the listen, send the stop record signal.
+            ser.write(b'\x03')
+            # close the arduino
+            ser.close()
+            print('Arduino Closed!')
+            sys.exit(0)
 
 
 # in place of 'COM9', put whatever COM port the Arduino is connected to on this computer
