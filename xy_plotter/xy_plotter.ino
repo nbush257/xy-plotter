@@ -139,13 +139,7 @@ void loop() {
   // catch interrupt
 
 
-  // Prevent stupid inputs
-  if (x_target > 390) {
-    x_target = 390;
-  }
-  if (x_target < 0) {
-    x_target = 0;
-  }
+
   // Let python know the message was received
   Serial.write(1);
 
@@ -155,13 +149,7 @@ void loop() {
   while (!Serial.available()) {} //wait for input
 
   int y_target = Serial.parseInt();
-  // Prevent stupid inputs
-  if (y_target > 325) {
-    y_target = 325;
-  }
-  if (y_target < 0) {
-    y_target = 0;
-  }
+
 
   // Let python know the message was received
   Serial.write(1);

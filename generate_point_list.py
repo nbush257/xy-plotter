@@ -6,18 +6,18 @@ import sys
 fname = sys.argv[1]
 
 # Hardcoding the extent of movement (in steps) that we want
-neg_extent_x = -6
-neg_extent_y = 0
-pos_extent_x = 10
-pos_extent_y = 10
+neg_extent_x = -8
+neg_extent_y = -16
+pos_extent_x = 2
+pos_extent_y = 0
 spacing = 2 # must be an int
 mode = 'D'
-delay = 2
+delay = 1
 
 x = np.arange(neg_extent_x,pos_extent_x,spacing)
 y = np.arange(neg_extent_y,pos_extent_y,spacing)
 X,Y = np.meshgrid(x,y)
-mask = X**2>Y
+mask = X>Y
 X = X[mask]
 Y = Y[mask]
 
@@ -30,10 +30,10 @@ df = df.loc[1:]
 
 df = df.sample(frac=1)
 
-temp = pd.DataFrame([{'X':0,'Y':0,'mode':'D','delay':0}])
-df = pd.concat([temp, df])
 df = df.reset_index(drop=True)
 
+temp = pd.DataFrame([{'X':0,'Y':0,'mode':'D','delay':0}])
+df = pd.concat([temp, df])
 
 df.to_csv(fname)
 
