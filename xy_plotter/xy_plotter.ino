@@ -8,7 +8,7 @@ Adafruit_StepperMotor *y = s.getStepper(400, 1);
 
 //int x_target = 0;
 //int y_target = 0;
-int x_pos = 30; // Set this to 90 so as to avoid the bars
+int x_pos = 0; // Set this to 90 so as to avoid the bars
 int y_pos = 0;
 char mode = 'D';
 int sleep_time = 0;
@@ -65,44 +65,31 @@ void setup() {
 
   while (!x_coarse) {
     x->step(1, BACKWARD, DOUBLE);
-    if (digitalRead(x_limit_pin) == HIGH) {
-      x_coarse = true;
-    }
+    x->step(1, FORWARD, DOUBLE);
+    x_coarse = true;
+    x_homed = true;
   }
-  x->step(20, FORWARD, DOUBLE);
-  while (!x_homed) {
-    x->step(1, BACKWARD, MICROSTEP);
-    if (digitalRead(x_limit_pin) == HIGH) {
-      x_homed = true;
-    }
-  }
-  x->step(x_pos * 5.5556, FORWARD, DOUBLE);
 
   // ============
   // Y homing
   // ============
   while (!y_coarse) {
     y->step(1, FORWARD, DOUBLE);
-    if (digitalRead(y_limit_pin) == HIGH) {
-      y_coarse = true;
-    }
-  }
+    y->step(1, BACKWARD, DOUBLE);
 
-  y->step(20, BACKWARD, DOUBLE);
+    y_coarse = true;
 
-  while (!y_homed) {
-    y->step(1, FORWARD, MICROSTEP);
-    if (digitalRead(y_limit_pin) == HIGH) {
-      y_homed = true;
+
+    y_homed = true;
+
+    digitalWrite(movement_output, LOW);
+    Serial.write(1);
+    Serial.flush();
+    x->release();
+    y->release();
+    while (Serial.available()) {
+      Serial.read(); //clear serial input
     }
-  }
-  digitalWrite(movement_output, LOW);
-  Serial.write(1);
-  Serial.flush();
-  x->release();
-  y->release();
-  while (Serial.available()) {
-    Serial.read(); //clear serial input
   }
 }
 
@@ -185,7 +172,7 @@ void loop() {
   char mode = Serial.read();
   // Let python know the message was received
   Serial.write(1);
-  
+
   // Quit signal
   if (mode == 'Q') {
     digitalWrite(enable_pin, LOW);
